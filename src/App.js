@@ -1,24 +1,40 @@
-import logo from './logo.svg';
+import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Watch from './pages/Watch';
+import AdminLogin from './pages/AdminLogin';
+import Admin from './pages/Admin';
+import { getMe } from './api';
 import './App.css';
+
+function AdminRoute() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('admin_token');
+    if (!token) { setLoading(false); return; }
+    getMe().then(({ data }) => setUser(data)).catch(() => {
+      localStorage.removeItem('admin_token');
+    }).finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div style={{ color: '#666', textAlign: 'center', marginTop: 80 }}>Loading...</div>;
+  if (!user) return <AdminLogin onLogin={setUser} />;
+  return <Admin user={user} onLogout={() => setUser(null)} />;
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/watch/:id" element={<Watch />} />
+          <Route path="/beast" element={<AdminRoute />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
