@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { getStats, getUsers, createUser, deleteUser, getSeries, createSeries, deleteSeries, getVideos, uploadVideo, deleteVideo, logout } from '../api';
 
-const isAdmin = user?.role === 'admin';
-const tabs = isAdmin ? ['Dashboard', 'Users', 'Series', 'Videos'] : ['Videos'];
-
 export default function Admin({ user, onLogout }) {
-  const [activeTab, setActiveTab] = useState('Dashboard');
+  const isAdmin = user?.role === 'admin';
+  const tabs = isAdmin ? ['Dashboard', 'Users', 'Series', 'Videos'] : ['Videos'];
+  const [activeTab, setActiveTab] = useState(isAdmin ? 'Dashboard' : 'Videos');
+  const [menuOpen, setMenuOpen] = useState(false);
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [series, setSeries] = useState([]);
@@ -98,23 +98,32 @@ export default function Admin({ user, onLogout }) {
   return (
     <div style={{ minHeight: '100vh', background: '#0d0d0d', color: '#fff' }}>
       <header style={{ background: '#1a1a1a', borderBottom: '1px solid #333', padding: '12px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ color: '#e50914', margin: 0, fontSize: 20 }}>Admin Panel</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 24, padding: 0, lineHeight: 1 }}>
+            ☰
+          </button>
+          <h1 style={{ color: '#e50914', margin: 0, fontSize: 20 }}>Admin Panel</h1>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <span style={{ color: '#999', fontSize: 13 }}>{user?.username}</span>
           <button onClick={handleLogout} style={{ background: 'none', border: '1px solid #555', color: '#ccc', padding: '6px 14px', borderRadius: 4, cursor: 'pointer', fontSize: 13 }}>Logout</button>
         </div>
       </header>
 
-      <div style={{ display: 'flex', borderBottom: '1px solid #333', background: '#111' }}>
-        {tabs.map(t => (
-          <button key={t} onClick={() => setActiveTab(t)} style={{
-            padding: '12px 24px', background: activeTab === t ? '#1a1a1a' : 'transparent',
-            border: 'none', color: activeTab === t ? '#e50914' : '#888', cursor: 'pointer',
-            borderBottom: activeTab === t ? '2px solid #e50914' : '2px solid transparent',
-            fontSize: 14, fontWeight: activeTab === t ? 600 : 400,
-          }}>{t}</button>
-        ))}
-      </div>
+      {menuOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, bottom: 0, width: 220, background: '#151515', borderRight: '1px solid #333', zIndex: 100, paddingTop: 60 }}>
+          <button onClick={() => setMenuOpen(false)} style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', color: '#fff', cursor: 'pointer', fontSize: 20 }}>✕</button>
+          {tabs.map(t => (
+            <button key={t} onClick={() => { setActiveTab(t); setMenuOpen(false); }} style={{
+              display: 'block', width: '100%', padding: '14px 20px', background: activeTab === t ? '#1a1a1a' : 'transparent',
+              border: 'none', color: activeTab === t ? '#e50914' : '#999', cursor: 'pointer', textAlign: 'left',
+              fontSize: 14, fontWeight: activeTab === t ? 600 : 400, borderLeft: activeTab === t ? '3px solid #e50914' : '3px solid transparent',
+            }}>{t}</button>
+          ))}
+        </div>
+      )}
+
+      {menuOpen && <div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 99 }} />}
 
       <div style={{ padding: 24, maxWidth: 1200, margin: '0 auto' }}>
         {activeTab === 'Dashboard' && (

@@ -11,9 +11,8 @@ export default function Home() {
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: 24 }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+      <header style={{ marginBottom: 32 }}>
         <h1 style={{ color: '#e50914', margin: 0 }}>TamuStream</h1>
-        <div />
       </header>
 
       {series.length === 0 ? (
